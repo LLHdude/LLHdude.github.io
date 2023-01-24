@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>使用GitLab CI/CD实现Docker镜像自动发布 | LLH's Space</title><meta name="author" content="LLH"><meta name="copyright" content="LLH"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="总结了下星辰工作室DevOps组的面试实践题（成功水篇博客  什么是CI&#x2F;CD基础概念CI（Continuous integration）即持续集成，在工程中，持续集成在开发人员提交了新代码后可以立即进行构建、单元测试。根据测试结果，我们可以分析新增代码与原本工程的集成情况。  CD（Continuous Delivery）即持续交付，持续交付在持续集成的基础上，将集成后的代码、工程部">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用GitLab CI&#x2F;CD实现Docker镜像自动发布">
+<meta property="og:url" content="http://example.com/2023/01/23/%E4%BD%BF%E7%94%A8GitLab-CI-CD%E5%AE%9E%E7%8E%B0Docker%E9%95%9C%E5%83%8F%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/index.html">
+<meta property="og:site_name" content="LLH&#39;s Space">
+<meta property="og:description" content="总结了下星辰工作室DevOps组的面试实践题（成功水篇博客  什么是CI&#x2F;CD基础概念CI（Continuous integration）即持续集成，在工程中，持续集成在开发人员提交了新代码后可以立即进行构建、单元测试。根据测试结果，我们可以分析新增代码与原本工程的集成情况。  CD（Continuous Delivery）即持续交付，持续交付在持续集成的基础上，将集成后的代码、工程部">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/6464255-1b6e3bfdbece1492.webp">
+<meta property="article:published_time" content="2023-01-23T09:14:28.000Z">
+<meta property="article:modified_time" content="2023-01-24T04:37:00.546Z">
+<meta property="article:author" content="LLH">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="服务器">
+<meta property="article:tag" content="运维">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/6464255-1b6e3bfdbece1492.webp"><link rel="shortcut icon" href="/img/chainsawman.jpg"><link rel="canonical" href="http://example.com/2023/01/23/%E4%BD%BF%E7%94%A8GitLab-CI-CD%E5%AE%9E%E7%8E%B0Docker%E9%95%9C%E5%83%8F%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '使用GitLab CI/CD实现Docker镜像自动发布',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-01-24 12:37:00'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.3.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/chainsawman.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><hr/></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/6464255-1b6e3bfdbece1492.webp')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">LLH's Space</a></span><div id="menus"><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">使用GitLab CI/CD实现Docker镜像自动发布</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-01-23T09:14:28.000Z" title="发表于 2023-01-23 17:14:28">2023-01-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-01-24T04:37:00.546Z" title="更新于 2023-01-24 12:37:00">2023-01-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%8A%98%E8%85%BE%E8%AE%B0%E5%BD%95/">折腾记录</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="使用GitLab CI/CD实现Docker镜像自动发布"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><blockquote>
+<p>总结了下星辰工作室DevOps组的面试实践题（<del>成功水篇博客</del></p>
+</blockquote>
+<h1 id="什么是CI-x2F-CD"><a href="#什么是CI-x2F-CD" class="headerlink" title="什么是CI&#x2F;CD"></a>什么是CI&#x2F;CD</h1><h2 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h2><p><strong>CI（Continuous integration）即持续集成</strong>，在工程中，持续集成在开发人员提交了新代码后可以立即进行构建、单元测试。根据测试结果，我们可以分析新增代码与原本工程的集成情况。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/6464255-1b6e3bfdbece1492.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/format/webp" alt="img"></p>
+<p><strong>CD（Continuous Delivery）即持续交付</strong>，持续交付在持续集成的基础上，将集成后的代码、工程部署到更贴近真实运行环境（类生产环境）中。</p>
+<p><img src="https://upload-images.jianshu.io/upload_images/6464255-ba088ec7257062c0.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/format/webp" alt="img"></p>
+<h2 id="GitLab-CI-x2F-CD"><a href="#GitLab-CI-x2F-CD" class="headerlink" title="GitLab CI&#x2F;CD"></a>GitLab CI&#x2F;CD</h2><p>GitLab CI&#x2F;CD本身并不是一个独立的CI&#x2F;CD工具，它是作为gitlab仓库中附属的功能项，因此其提供的功能架构也较为简单，可快速上手。</p>
+<p><img src="/2023/01/23/%E4%BD%BF%E7%94%A8GitLab-CI-CD%E5%AE%9E%E7%8E%B0Docker%E9%95%9C%E5%83%8F%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/image-20230124113148590.png" alt="image-20230124113148590"></p>
+<h1 id="实操"><a href="#实操" class="headerlink" title="实操"></a>实操</h1><h2 id="关于GitLab-Runner"><a href="#关于GitLab-Runner" class="headerlink" title="关于GitLab Runner"></a>关于GitLab Runner</h2><p><strong>GitLab CI</strong>在架构中类似于调度员的作用，通过配置决定何时触发构建任务，以及在哪个Runner下执行任务。</p>
+<p><strong>GitLab Runner</strong>是我们自己配置的环境，我们可以将它注册成为GitLab CI的任务执行单元。GitLab CI支持的Runner类型非常自由，它可以是一台真实的主机，也可以是一台虚拟机，甚至可以是一个docker容器。</p>
+<p>GitLab平台还提供了共享Runner，每月有免费试用的额度。（但要验证信用卡，<del>烦内</del>）</p>
+<blockquote>
+<p>在下文中，我们使用docker容器作为Runner</p>
+</blockquote>
+<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>测试项目仓库：gitlab中新建一个私有仓库</li>
+<li>镜像仓库：DockerHub中创建</li>
+<li>Runner：部署在云服务器上的docker容器</li>
+</ul>
+<h2 id="Runner部署"><a href="#Runner部署" class="headerlink" title="Runner部署"></a>Runner部署</h2><ul>
+<li>gitlab提供的共享runner需要信用卡验证，同时还有使用时间限制，因此选择部署并注册自己的runner。</li>
+<li>对于GitLab CI来说，runner只是一台用来执行任务的机器，因此对于其形式没有过多要求。此外GitLab CI对于docker的支持非常好，官方文档写的也较为详细。因此为了不影响系统现有环境，选择创建一docker容器作为runner。</li>
+<li>由于将docker容器作为runner，因此在构建时会形成“容器中生成容器”这样的套娃形式来实际执行任务，这里我设置了默认镜像<code>tico/docker</code>，它在官方docker镜像的基础上加入了git、curl等常用工具。此外为了在docker中运行docker命令，配置config.toml来挂载<code>/var/run/docker.sock</code>。</li>
+</ul>
+<p>Runner创建并注册好后，按需求编写项目对应的<code>.gitlab-ci.yml</code>文件即可。</p>
+<blockquote>
+<p>我们通过配置仓库中的<code>.gitlab-ci.yml</code>文件来指定构建测试任务的各个阶段、每个阶段任务的具体内容、以及执行任务的具体runner。</p>
+</blockquote>
+<p>我的测试<code>.gitlab-ci.yml</code>文件内容如下：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">before_script:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">docker</span> <span class="string">login</span> <span class="string">-u</span> <span class="string">&quot;$DOCKER_USERNAME&quot;</span> <span class="string">-p</span> <span class="string">&quot;$DOCKER_PASSWD&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">stages:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">build</span></span><br><span class="line"></span><br><span class="line"><span class="attr">build:</span></span><br><span class="line">  <span class="attr">stage:</span> <span class="string">build</span></span><br><span class="line">  <span class="attr">script:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">docker</span> <span class="string">build</span> <span class="string">-t</span> <span class="string">&quot;$IMAGE_NAME&quot;</span> <span class="string">.</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">docker</span> <span class="string">push</span> <span class="string">$IMAGE_NAME</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">docker</span> <span class="string">logout</span></span><br><span class="line">  <span class="attr">only:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">main</span></span><br><span class="line">  <span class="attr">tags:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">my-tag</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="构建镜像并发布"><a href="#构建镜像并发布" class="headerlink" title="构建镜像并发布"></a>构建镜像并发布</h2><p>在<code>.gitlab-ci.yml</code>文件中，build阶段分配了构建docker镜像并发布的任务，因此需要仓库中含有Dockerfile文件用于配置镜像的构建。该部分流程：</p>
+<ul>
+<li>按需求编写Dockerfile。我构建的镜像基于CentOS，在其上安装vim和net-tools，并暴露其80端口。</li>
+<li>将docker镜像构建和发布至仓库的命令放在<code>.gitlab-ci.yml</code>文件中即可。</li>
+</ul>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#我的Dockerfile</span></span><br><span class="line"><span class="keyword">FROM</span> centos:<span class="number">7</span></span><br><span class="line"><span class="keyword">ENV</span> MYPATH /usr/local</span><br><span class="line"><span class="keyword">WORKDIR</span><span class="language-bash"> <span class="variable">$MYPATH</span></span></span><br><span class="line"><span class="keyword">RUN</span><span class="language-bash"> yum -y install vim  net-tools --nogpgcheck</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">80</span></span><br><span class="line"><span class="keyword">CMD</span><span class="language-bash"> /bin/bash</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="测试环节"><a href="#测试环节" class="headerlink" title="测试环节"></a>测试环节</h2><p>在项目中添加<code>test.md</code>，并推送至gitlab仓库，检测到仓库更新后，会触发GitLab CI流程，通知runner执行任务。这里截取了部分GitLab CI pipeline的执行过程：</p>
+<p><img src="/2023/01/23/%E4%BD%BF%E7%94%A8GitLab-CI-CD%E5%AE%9E%E7%8E%B0Docker%E9%95%9C%E5%83%8F%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/ca4ef6fe-6b7f-47c8-a715-5ac160f4e6bc.png" alt="ca4ef6fe-6b7f-47c8-a715-5ac160f4e6bc"></p>
+<p>镜像发布测试成功！</p>
+<h2 id="GitLab-CI流程总结"><a href="#GitLab-CI流程总结" class="headerlink" title="GitLab CI流程总结"></a>GitLab CI流程总结</h2><ul>
+<li>配置<code>GitLab CI</code>来决定什么情况下触发构建测试任务（如仓库文件变动触发）</li>
+<li>配置<code>.gitlab-ci.yml</code>来具体指定构建测试任务各阶段的细节与执行单元</li>
+<li>触发条件后，GitLab CI将任务分配给指定的Runner，Runner执行任务并将结果回显在GitLab CI的面板中<ul>
+<li>值得注意的是，runner在执行任务前，会自动将GitLab中的仓库拉取下来，并在任务执行结束后自动删除</li>
+</ul>
+</li>
+</ul>
+<h2 id="额外的思考"><a href="#额外的思考" class="headerlink" title="额外的思考"></a>额外的思考</h2><p><strong>在上述步骤中，只是使用GitLab CI&#x2F;CD将镜像发布到Docker Hub，但是如何将Docker镜像实际在服务器上运行？</strong></p>
+<p>GitLab CI可以通过<code>tag</code>来区分不同的runner，在项目的<code>.gitlab-ci.yml</code>文件中，可通过tag来为不同的阶段<code>stage</code>指定不同的runner。</p>
+<p>基于此，一种可行的方案是，注册两个runner，Runner1在<code>build</code>阶段用于构建镜像并发布；然后GitLab CI将部署任务发布至Runner2，由Runner2通过ssh等远程连接手段登录目标服务器，拉取最新的镜像并运行。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a target="_blank" rel="noopener" href="https://www.xuxusheng.com/post/%E4%BD%BF%E7%94%A8Docker%E9%83%A8%E7%BD%B2GitLab-CI-Runner">使用 Docker 部署 GitLab CI Runner - XuSheng’s Blog (xuxusheng.com)</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.gitlab.com/runner/">GitLab Runner | GitLab</a></p>
+<p><a target="_blank" rel="noopener" href="https://hub.docker.com/_/docker?tab=description&page=1">docker - Official Image | Docker Hub</a></p>
+<p><a target="_blank" rel="noopener" href="https://docs.gitlab.com/runner/install/docker.html">Run GitLab Runner in a container | GitLab</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/5f671aca2b5a">Jenkins详细教程 - 简书 (jianshu.com)</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://example.com">LLH</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://example.com/2023/01/23/%E4%BD%BF%E7%94%A8GitLab-CI-CD%E5%AE%9E%E7%8E%B0Docker%E9%95%9C%E5%83%8F%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/">http://example.com/2023/01/23/%E4%BD%BF%E7%94%A8GitLab-CI-CD%E5%AE%9E%E7%8E%B0Docker%E9%95%9C%E5%83%8F%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://example.com" target="_blank">LLH's Space</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Linux/">Linux</a><a class="post-meta__tags" href="/tags/%E6%9C%8D%E5%8A%A1%E5%99%A8/">服务器</a><a class="post-meta__tags" href="/tags/%E8%BF%90%E7%BB%B4/">运维</a></div><div class="post_share"><div class="social-share" data-image="/img/6464255-1b6e3bfdbece1492.webp" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/01/19/TinyWebServer%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%89%EF%BC%89/"><img class="next-cover" src="/img/lucy.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">TinyWebServer学习记录（三）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2023/01/17/Android%E7%BB%88%E7%AB%AF%E7%A5%9E%E5%99%A8%E2%80%94%E2%80%94Termux%E7%AE%80%E5%8D%95%E9%85%8D%E7%BD%AE%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="Android终端神器——Termux简单配置与使用"><img class="cover" src="/img/image-20230117173343457.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-17</div><div class="title">Android终端神器——Termux简单配置与使用</div></div></a></div><div><a href="/2023/01/02/%E8%BF%9C%E7%A8%8B%E6%93%8D%E4%BD%9C%E6%9C%8D%E5%8A%A1%E5%99%A8GUI%E7%A8%8B%E5%BA%8F%EF%BC%9AX11%E8%BD%AC%E5%8F%91/" title="远程操作服务器GUI程序：X11转发"><img class="cover" src="/img/image-20230102193907409.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-01-02</div><div class="title">远程操作服务器GUI程序：X11转发</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/chainsawman.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LLH</div><div class="author-info__description">我与我周旋久，宁做我</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">9</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">3</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFCI-x2F-CD"><span class="toc-number">1.</span> <span class="toc-text">什么是CI&#x2F;CD</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">基础概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GitLab-CI-x2F-CD"><span class="toc-number">1.2.</span> <span class="toc-text">GitLab CI&#x2F;CD</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E6%93%8D"><span class="toc-number">2.</span> <span class="toc-text">实操</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E4%BA%8EGitLab-Runner"><span class="toc-number">2.1.</span> <span class="toc-text">关于GitLab Runner</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83"><span class="toc-number">2.2.</span> <span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Runner%E9%83%A8%E7%BD%B2"><span class="toc-number">2.3.</span> <span class="toc-text">Runner部署</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E9%95%9C%E5%83%8F%E5%B9%B6%E5%8F%91%E5%B8%83"><span class="toc-number">2.4.</span> <span class="toc-text">构建镜像并发布</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E7%8E%AF%E8%8A%82"><span class="toc-number">2.5.</span> <span class="toc-text">测试环节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GitLab-CI%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93"><span class="toc-number">2.6.</span> <span class="toc-text">GitLab CI流程总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%9D%E5%A4%96%E7%9A%84%E6%80%9D%E8%80%83"><span class="toc-number">2.7.</span> <span class="toc-text">额外的思考</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">3.</span> <span class="toc-text">参考</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/01/23/%E4%BD%BF%E7%94%A8GitLab-CI-CD%E5%AE%9E%E7%8E%B0Docker%E9%95%9C%E5%83%8F%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/" title="使用GitLab CI/CD实现Docker镜像自动发布"><img src="/img/6464255-1b6e3bfdbece1492.webp" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="使用GitLab CI/CD实现Docker镜像自动发布"/></a><div class="content"><a class="title" href="/2023/01/23/%E4%BD%BF%E7%94%A8GitLab-CI-CD%E5%AE%9E%E7%8E%B0Docker%E9%95%9C%E5%83%8F%E8%87%AA%E5%8A%A8%E5%8F%91%E5%B8%83/" title="使用GitLab CI/CD实现Docker镜像自动发布">使用GitLab CI/CD实现Docker镜像自动发布</a><time datetime="2023-01-23T09:14:28.000Z" title="发表于 2023-01-23 17:14:28">2023-01-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/19/TinyWebServer%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%89%EF%BC%89/" title="TinyWebServer学习记录（三）"><img src="/img/lucy.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="TinyWebServer学习记录（三）"/></a><div class="content"><a class="title" href="/2023/01/19/TinyWebServer%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%88%E4%B8%89%EF%BC%89/" title="TinyWebServer学习记录（三）">TinyWebServer学习记录（三）</a><time datetime="2023-01-19T13:37:06.000Z" title="发表于 2023-01-19 21:37:06">2023-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/19/TinyWebServer%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/" title="TinyWebServer学习记录（二）"><img src="/img/lucy.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="TinyWebServer学习记录（二）"/></a><div class="content"><a class="title" href="/2023/01/19/TinyWebServer%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95%EF%BC%88%E4%BA%8C%EF%BC%89/" title="TinyWebServer学习记录（二）">TinyWebServer学习记录（二）</a><time datetime="2023-01-19T13:27:53.000Z" title="发表于 2023-01-19 21:27:53">2023-01-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/17/Android%E7%BB%88%E7%AB%AF%E7%A5%9E%E5%99%A8%E2%80%94%E2%80%94Termux%E7%AE%80%E5%8D%95%E9%85%8D%E7%BD%AE%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="Android终端神器——Termux简单配置与使用"><img src="/img/image-20230117173343457.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Android终端神器——Termux简单配置与使用"/></a><div class="content"><a class="title" href="/2023/01/17/Android%E7%BB%88%E7%AB%AF%E7%A5%9E%E5%99%A8%E2%80%94%E2%80%94Termux%E7%AE%80%E5%8D%95%E9%85%8D%E7%BD%AE%E4%B8%8E%E4%BD%BF%E7%94%A8/" title="Android终端神器——Termux简单配置与使用">Android终端神器——Termux简单配置与使用</a><time datetime="2023-01-17T08:56:10.000Z" title="发表于 2023-01-17 16:56:10">2023-01-17</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/01/02/%E8%BF%9C%E7%A8%8B%E6%93%8D%E4%BD%9C%E6%9C%8D%E5%8A%A1%E5%99%A8GUI%E7%A8%8B%E5%BA%8F%EF%BC%9AX11%E8%BD%AC%E5%8F%91/" title="远程操作服务器GUI程序：X11转发"><img src="/img/image-20230102193907409.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="远程操作服务器GUI程序：X11转发"/></a><div class="content"><a class="title" href="/2023/01/02/%E8%BF%9C%E7%A8%8B%E6%93%8D%E4%BD%9C%E6%9C%8D%E5%8A%A1%E5%99%A8GUI%E7%A8%8B%E5%BA%8F%EF%BC%9AX11%E8%BD%AC%E5%8F%91/" title="远程操作服务器GUI程序：X11转发">远程操作服务器GUI程序：X11转发</a><time datetime="2023-01-02T08:56:37.000Z" title="发表于 2023-01-02 16:56:37">2023-01-02</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By LLH</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
